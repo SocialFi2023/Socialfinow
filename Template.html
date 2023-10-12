@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Filter</title>
+</head>
+<body>
+    <h1>Product Filter</h1>
+
+    <select id="performance">
+        <option value="high">High Performance</option>
+        <option value="medium">Medium Performance</option>
+        <option value="low">Low Performance</option>
+    </select>
+
+    <select id="price">
+        <option value="expensive">Expensive</option>
+        <option value="medium">Medium Price</option>
+        <option value="affordable">Affordable</option>
+    </select>
+
+    <select id="followers">
+        <option value="high">High Followers</option>
+        <option value="medium">Medium Followers</option>
+        <option value="low">Low Followers</option>
+    </select>
+
+    <table id="productTable">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Performance</th>
+                <th>Price</th>
+                <th>Followers</th>
+            </tr>
+        </thead>
+        <tbody id="productData">
+            <!-- Data will be loaded dynamically here -->
+        </tbody>
+    </table>
+
+    <script src="script.js"></script>
+</body>
+</html>
