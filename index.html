@@ -1,43 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Product Filter</title>
+    <title>Ethereum Stats</title>
+    <!-- Add CSS link here if you have one -->
 </head>
 <body>
-    <h1>Product Filter</h1>
-
-    <select id="performance">
-        <option value="high">High Performance</option>
-        <option value="medium">Medium Performance</option>
-        <option value="low">Low Performance</option>
-    </select>
-
-    <select id="price">
-        <option value="expensive">Expensive</option>
-        <option value="medium">Medium Price</option>
-        <option value="affordable">Affordable</option>
-    </select>
-
-    <select id="followers">
-        <option value="high">High Followers</option>
-        <option value="medium">Medium Followers</option>
-        <option value="low">Low Followers</option>
-    </select>
-
-    <table id="productTable">
+    <h1>Ethereum Stats</h1>
+    <div>
+        <label for="timeFrame">Select Time Frame:</label>
+        <select id="timeFrame">
+            <option value="day">Past Day</option>
+            <option value="week">Past Week</option>
+            <option value="month">Past Month</option>
+        </select>
+    </div>
+    <table id="statsTable">
         <thead>
             <tr>
-                <th>Product Name</th>
-                <th>Performance</th>
-                <th>Price</th>
-                <th>Followers</th>
+                <th>User</th>
+                <th>Performance % Gain</th>
             </tr>
         </thead>
-        <tbody id="productData">
-            <!-- Data will be loaded dynamically here -->
+        <tbody id="tableData">
         </tbody>
     </table>
-
     <script src="script.js"></script>
 </body>
 </html>
