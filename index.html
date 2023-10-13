@@ -1,29 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ethereum Stats</title>
-    <!-- Add CSS link here if you have one -->
+    <title>Users List</title>
 </head>
 <body>
-    <h1>Ethereum Stats</h1>
-    <div>
-        <label for="timeFrame">Select Time Frame:</label>
-        <select id="timeFrame">
-            <option value="day">Past Day</option>
-            <option value="week">Past Week</option>
-            <option value="month">Past Month</option>
-        </select>
-    </div>
-    <table id="statsTable">
-        <thead>
-            <tr>
-                <th>User</th>
-                <th>Performance % Gain</th>
-            </tr>
-        </thead>
-        <tbody id="tableData">
-        </tbody>
-    </table>
-    <script src="script.js"></script>
+    <h1>Users List</h1>
+    <ul id="userList">
+    </ul>
+
+    <script src="api.js"></script>
+    <script>
+        // Fetch and display users
+        async function displayUsers() {
+            const userList = document.getElementById('userList');
+            const users = await getUsers();
+
+            users.forEach(user => {
+                const listItem = document.createElement('li');
+                listItem.textContent = user.name; // Replace with the actual user property
+                userList.appendChild(listItem);
+            });
+        }
+
+        displayUsers();
+    </script>
 </body>
 </html>
