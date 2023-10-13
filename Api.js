@@ -1,13 +1,9 @@
 const apiUrl = 'https://prod-api.kosetto.com';
-const authKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZGRyZXNss...'; // Replace with your actual authentication key
 
-async function getUsers() {
+async function getEvents() {
   try {
-    const response = await fetch(`${apiUrl}/users`, {
+    const response = await fetch(`${apiUrl}/events`, {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${authKey}`,
-      },
     });
 
     if (!response.ok) {
@@ -17,7 +13,7 @@ async function getUsers() {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error('Error fetching events:', error);
     return [];
   }
 }
