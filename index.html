@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Users List</title>
+    <title>Events List</title>
 </head>
 <body>
-    <h1>Users List</h1>
-    <ul id="userList">
+    <h1>Events List</h1>
+    <ul id="eventList">
     </ul>
 
     <script src="api.js"></script>
     <script>
-        // Fetch and display users
-        async function displayUsers() {
-            const userList = document.getElementById('userList');
-            const users = await getUsers();
+        // Fetch and display events
+        async function displayEvents() {
+            const eventList = document.getElementById('eventList');
+            const events = await getEvents();
 
-            users.forEach(user => {
+            events.forEach(event => {
                 const listItem = document.createElement('li');
-                listItem.textContent = user.name; // Replace with the actual user property
-                userList.appendChild(listItem);
+                listItem.textContent = event.name; // Replace with the actual event property
+                eventList.appendChild(listItem);
             });
         }
 
-        displayUsers();
+        displayEvents();
     </script>
 </body>
 </html>
