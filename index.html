@@ -1,28 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Events List</title>
+    <title>Event List</title>
 </head>
 <body>
-    <h1>Events List</h1>
-    <ul id="eventList">
-    </ul>
+    <h1>Event List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Event Name</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody id="eventTable">
+            <!-- Event rows will be dynamically added here -->
+        </tbody>
+    </table>
 
-    <script src="api.js"></script>
     <script>
-        // Fetch and display events
-        async function displayEvents() {
-            const eventList = document.getElementById('eventList');
-            const events = await getEvents();
+        // Sample event data (replace with your actual data)
+        const eventsData = [
+            { name: 'Event 1', date: '2023-10-20' },
+            { name: 'Event 2', date: '2023-11-15' },
+            { name: 'Event 3', date: '2023-12-05' },
+        ];
 
-            events.forEach(event => {
-                const listItem = document.createElement('li');
-                listItem.textContent = event.name; // Replace with the actual event property
-                eventList.appendChild(listItem);
+        // Function to populate the event table
+        function populateEventTable() {
+            const eventTable = document.getElementById('eventTable');
+
+            eventsData.forEach(event => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${event.name}</td>
+                    <td>${event.date}</td>
+                `;
+                eventTable.appendChild(row);
             });
         }
 
-        displayEvents();
+        // Call the function to populate the event table
+        populateEventTable();
     </script>
 </body>
 </html>
