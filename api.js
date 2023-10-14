@@ -1,19 +1,28 @@
-const apiUrl = 'https://prod-api.kosetto.com';
+const apiUrl = 'https://prod-api.kosetto.com/events';
 
-async function getEvents() {
-  try {
-    const response = await fetch(`${apiUrl}/events`, {
-      method: 'GET',
-    });
+// Function to get and display events
+async function getevents() {
+    try {
+        const response = await axios.get(apiUrl);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+        // Handle the response data and update the table
+        const tableData = document.getElementById('tableData');
+        tableData.innerHTML = ''; // Clear existing table content
+
+        const events = response.data; // Assuming the API response is an array of events
+
+        events.forEach((event) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${event.name}</td>
+                <td>${event.date}</td>
+            `;
+            tableData.appendChild(row);
+        });
+    } catch (error) {
+        console.error(error);
     }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching events:', error);
-    return [];
-  }
 }
+
+// Call the getevents function to populate the table with events
+getevents();
