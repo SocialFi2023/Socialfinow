@@ -2,6 +2,15 @@
 <html>
 <head>
     <title>Event List</title>
+    <style>
+        .raw-data-box {
+            border: 1px solid #000;
+            padding: 10px;
+            background-color: #f9f9f9;
+            white-space: pre;
+            color: #000;
+        }
+    </style>
 </head>
 <body>
     <h1>Event List</h1>
@@ -17,7 +26,10 @@
     </table>
 
     <h2>Raw Event Data</h2>
-    <pre id="rawData"></pre>
+    <div class="raw-data-box" id="rawData"></div>
+
+    <h2>Error Message</h2>
+    <p id="errorMessage"></p>
 
     <script>
         const apiUrl = 'https://prod-api.kosetto.com/events';
@@ -30,6 +42,7 @@
 
                 const tableData = document.getElementById('eventTable');
                 const rawDataElement = document.getElementById('rawData');
+                const errorMessageElement = document.getElementById('errorMessage');
                 const events = response.data; // Assuming the API response is an array of events
 
                 if (events.length > 0) {
@@ -52,17 +65,19 @@
                         });
                         tableData.appendChild(row);
                     });
+
+                    rawDataElement.textContent = rawData;
                 } else {
                     tableData.innerHTML = '<tr><td colspan="2">No event data available</td></tr>';
+                    errorMessageElement.textContent = 'No data available for events.';
                 }
-
-                rawDataElement.textContent = rawData;
             } catch (error) {
                 console.error(error);
+                errorMessageElement.textContent = 'An error occurred while fetching data.';
             }
         }
 
-        // Call the getEvents function to populate the table with events and raw data
+        // Call the getEvents function to populate the table with events, raw data, and error message
         getEvents();
     </script>
 </body>
