@@ -75,7 +75,7 @@
                     <td>${user.twitterUsername}</td>
                     <td>${user.twitterName}</td>
                     <td>${formatDisplayPrice(user.displayPrice)}</td>
-                    <td>${user.change24H}</td>
+                    <td>${formatChange24H(user.change24H)}</td>
                     <td>${user.holderCount}</td>
                     <td>${user.shareSupply}</td>
                 `;
@@ -86,11 +86,21 @@
         function formatDisplayPrice(price) {
             // Convert to a floating point number
             const priceFloat = parseFloat(price);
-            
-            // Format with 3 decimal places and add "ETH" prefix
-            const formattedPrice = `ETH ${priceFloat.toFixed(3)}`;
+
+            // Format with 3 decimal places, add "ETH" prefix, and parentheses
+            const formattedPrice = `(ETH ${priceFloat.toFixed(3)})`;
 
             return formattedPrice;
+        }
+
+        function formatChange24H(change) {
+            // Convert to a floating point number
+            const changeFloat = parseFloat(change);
+
+            // Format with 3 decimal places and add percent symbol
+            const formattedChange = `${changeFloat.toFixed(3)}%`;
+
+            return formattedChange;
         }
 
         function sortTable(columnIndex) {
