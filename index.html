@@ -1,101 +1,106 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Event List</title>
+    <title>User List</title>
     <style>
-        .raw-data-box {
-            border: 1px solid #000;
-            padding: 10px;
-            background-color: #f9f9f9;
-            white-space: pre;
-            color: #000;
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1>Event List</h1>
-    <table>
+    <h1>User List</h1>
+    <table id="userTable">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Blurred Image</th>
-                <th>Is NSFW</th>
-                <th>Caption</th>
-                <th>Value</th>
-                <th>Surplus</th>
-                <th>Previous Owner</th>
-                <th>Stealer</th>
-                <th>Creator</th>
-                <th>Previous Owner Pfp</th>
-                <th>Previous Owner Username</th>
-                <th>Stealer Pfp</th>
-                <th>Stealer Username</th>
-                <th>Creator Pfp</th>
-                <th>Creator Username</th>
+                <th onclick="sortTable(0)">ID</th>
+                <th onclick="sortTable(1)">Address</th>
+                <th onclick="sortTable(2)">Twitter Username</th>
+                <th onclick="sortTable(3)">Twitter Name</th>
+                <th onclick="sortTable(4)">Display Price</th>
+                <th onclick="sortTable(5)">Change (24H)</th>
+                <th onclick="sortTable(6)">Holder Count</th>
+                <th onclick="sortTable(7)">Share Supply</th>
             </tr>
         </thead>
-        <tbody id="eventTable">
-            <!-- Event rows will be dynamically added here -->
+        <tbody id="userTableBody">
+            <!-- User data will be dynamically added here -->
         </tbody>
     </table>
 
-    <h2>Raw Event Data</h2>
-    <div class="raw-data-box" id="rawData"></div>
-
     <script>
-        const apiUrl = 'https://prod-api.kosetto.com/events';
+        const apiUrl = 'https://prod-api.kosetto.com/lists/top-by-price';
 
-        // Function to get and display events
-        async function getEvents() {
+        async function getUsers() {
             try {
                 const response = await fetch(apiUrl);
-                const rawData = await response.text(); // Get the raw JSON data
-
-                const tableData = document.getElementById('eventTable');
-                const rawDataElement = document.getElementById('rawData');
+                const userData = await response.json();
 
                 if (response.ok) {
-                    const eventsData = JSON.parse(rawData).events;
-
-                    if (eventsData.length > 0) {
-                        eventsData.forEach(event => {
-                            const row = document.createElement('tr');
-                            // Populate the table with event data
-                            row.innerHTML = `
-                                <td>${event.id}</td>
-                                <td><img src="${event.blurredUrl}" alt="Blurred Image"></td>
-                                <td>${event.isNSFW}</td>
-                                <td>${event.caption}</td>
-                                <td>${event.value}</td>
-                                <td>${event.surplus}</td>
-                                <td>${event.previousOwner}</td>
-                                <td>${event.stealer}</td>
-                                <td>${event.creator}</td>
-                                <td><img src="${event.previousOwnerPfpUrl}" alt="Previous Owner Pfp"></td>
-                                <td>${event.previousOwnerUsername}</td>
-                                <td><img src="${event.stealerPfpUrl}" alt="Stealer Pfp"></td>
-                                <td>${event.stealerUsername}</td>
-                                <td><img src="${event.creatorPfpUrl}" alt="Creator Pfp"></td>
-                                <td>${event.creatorUsername}</td>
-                            `;
-                            tableData.appendChild(row);
-                        });
-                    } else {
-                        tableData.innerHTML = '<tr><td colspan="15">No event data available</td></tr>';
-                    }
+                    displayUsers(userData.users);
                 } else {
-                    // Display an error message if the API request fails
-                    tableData.innerHTML = '<tr><td colspan="15">Error fetching event data</td></tr>';
+                    console.error('Error fetching user data');
                 }
-
-                rawDataElement.textContent = rawData;
             } catch (error) {
                 console.error(error);
             }
         }
 
-        // Call the getEvents function to populate the table with events and raw data
-        getEvents();
+        function displayUsers(users) {
+            const tableBody = document.getElementById('userTableBody');
+            tableBody.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.address}</td>
+                    <td>${user.twitterUsername}</td>
+                    <td>${user.twitterName}</td>
+                    <td>${user.displayPrice}</td>
+                    <td>${user.change24H}</td>
+                    <td>${user.holderCount}</td>
+                    <td>${user.shareSupply}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function sortTable(columnIndex) {
+            const table = document.getElementById('userTable');
+            const rows = table.rows;
+            let switching = true;
+
+            while (switching) {
+                switching = false;
+                for (let i = 1; i < rows.length - 1; i++) {
+                    let shouldSwitch = false;
+                    const x = rows[i].getElementsByTagName('td')[columnIndex];
+                    const y = rows[i + 1].getElementsByTagName('td')[columnIndex];
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
+        }
+
+        getUsers();
     </script>
 </body>
 </html>
