@@ -18,7 +18,7 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Blurred URL</th>
+                <th>Blurred Image</th>
                 <th>Is NSFW</th>
                 <th>Caption</th>
                 <th>Value</th>
@@ -26,11 +26,11 @@
                 <th>Previous Owner</th>
                 <th>Stealer</th>
                 <th>Creator</th>
-                <th>Previous Owner Pfp URL</th>
+                <th>Previous Owner Pfp</th>
                 <th>Previous Owner Username</th>
-                <th>Stealer Pfp URL</th>
+                <th>Stealer Pfp</th>
                 <th>Stealer Username</th>
-                <th>Creator Pfp URL</th>
+                <th>Creator Pfp</th>
                 <th>Creator Username</th>
             </tr>
         </thead>
@@ -63,7 +63,7 @@
                             // Populate the table with event data
                             row.innerHTML = `
                                 <td>${event.id}</td>
-                                <td>${event.blurredUrl}</td>
+                                <td><img src="${event.blurredUrl}" alt="Blurred Image"></td>
                                 <td>${event.isNSFW}</td>
                                 <td>${event.caption}</td>
                                 <td>${event.value}</td>
@@ -71,21 +71,21 @@
                                 <td>${event.previousOwner}</td>
                                 <td>${event.stealer}</td>
                                 <td>${event.creator}</td>
-                                <td>${event.previousOwnerPfpUrl}</td>
+                                <td><img src="${event.previousOwnerPfpUrl}" alt="Previous Owner Pfp"></td>
                                 <td>${event.previousOwnerUsername}</td>
-                                <td>${event.stealerPfpUrl}</td>
+                                <td><img src="${event.stealerPfpUrl}" alt="Stealer Pfp"></td>
                                 <td>${event.stealerUsername}</td>
-                                <td>${event.creatorPfpUrl}</td>
+                                <td><img src="${event.creatorPfpUrl}" alt="Creator Pfp"></td>
                                 <td>${event.creatorUsername}</td>
                             `;
                             tableData.appendChild(row);
                         });
                     } else {
-                        tableData.innerHTML = '<tr><td colspan="14">No event data available</td></tr>';
+                        tableData.innerHTML = '<tr><td colspan="15">No event data available</td></tr>';
                     }
                 } else {
                     // Display an error message if the API request fails
-                    tableData.innerHTML = '<tr><td colspan="14">Error fetching event data</td></tr>';
+                    tableData.innerHTML = '<tr><td colspan="15">Error fetching event data</td></tr>';
                 }
 
                 rawDataElement.textContent = rawData;
