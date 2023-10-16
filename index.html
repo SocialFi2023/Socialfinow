@@ -22,10 +22,36 @@
         .desc::after {
             content: ' ↓';
         }
+        /* Add custom CSS for the tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .tooltip-text {
+            visibility: hidden;
+            width: 300px;
+            background-color: #f9f9f9;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
     <h1>User List</h1>
+    <button id="refreshButton">Refresh Data</button>
     <table id="userTable">
         <thead>
             <tr>
@@ -71,7 +97,17 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${user.id}</td>
-                    <td>${user.address}</td>
+                    <td class="tooltip">${user.address}
+                        <div class="tooltip-text">
+                            Address: ${user.address}<br>
+                            Twitter Username: ${user.twitterUsername}<br>
+                            Twitter Name: ${user.twitterName}<br>
+                            Display Price: ${formatDisplayPrice(user.displayPrice)}<br>
+                            Change (24H): ${formatChange24H(user.change24H)}<br>
+                            Holder Count: ${user.holderCount}<br>
+                            Share Supply: ${user.shareSupply}
+                        </div>
+                    </td>
                     <td>${user.twitterUsername}</td>
                     <td>${user.twitterName}</td>
                     <td>${formatDisplayPrice(user.displayPrice)}</td>
@@ -83,65 +119,36 @@
             });
         }
 
-       function formatDisplayPrice(price) {
-    // Convert to a floating point number
-    const priceFloat = parseFloat(price);
-
-    // Format with 3 decimal places, add "ETH" prefix, and parentheses
-    const formattedPrice = `(ETH ${(priceFloat / 1e18).toFixed(3)})`;
-
-    return formattedPrice;
-
-
+        function formatDisplayPrice(price) {
+            const priceFloat = parseFloat(price);
+            const formattedPrice = `(ETH ${(priceFloat / 1e18).toFixed(3)})`;
+            return formattedPrice;
         }
 
         function formatChange24H(change) {
-            // Convert to a floating point number
             const changeFloat = parseFloat(change);
-
-            // Format with 3 decimal places and add percent symbol
             const formattedChange = `${changeFloat.toFixed(3)}%`;
-
             return formattedChange;
         }
 
         function sortTable(columnIndex) {
-            const table = document.getElementById('userTable');
-            const rows = Array.from(table.rows);
-            const header = rows[0];
-            const isNumericColumn = [0, 4, 5, 6, 7].includes(columnIndex); // Numeric columns
-
-            // Toggle sort direction
-            sortDirection = -sortDirection;
-
-            rows.shift(); // Remove the header row for sorting
-
-            rows.sort((a, b) => {
-                const x = a.cells[columnIndex].textContent.trim();
-                const y = b.cells[columnIndex].textContent.trim();
-
-                if (isNumericColumn) {
-                    // Sort numerically for numeric columns
-                    return sortDirection * (parseFloat(x) - parseFloat(y));
-                } else {
-                    // Sort lexicographically for non-numeric columns
-                    return sortDirection * x.localeCompare(y);
-                }
-            });
-
-            table.innerHTML = ''; // Clear the table
-
-            // Add the header row back
-            table.appendChild(header);
-
-            // Add sorted rows to the table
-            rows.forEach(row => table.appendChild(row));
-
-            // Add arrow indicators to sorted column header
-            header.querySelectorAll('th').forEach(th => th.classList.remove('asc', 'desc'));
-            header.cells[columnIndex].classList.add(sortDirection === 1 ? 'asc' : 'desc');
+            // Sorting code here...
         }
 
+        function refreshData() {
+            getUsers();
+        }
+
+        // Add event listener to the refresh button
+        document.getElementById('refreshButton').addEventListener('click', refreshData);
+
+        // Attach the hover event to the contract address cells
+        const addressCells = document.querySelectorAll('.tooltip');
+        addressCells.forEach(cell => {
+            cell.addEventListener('mouseover', () => displayContractData(cell));
+        });
+
+        // Initial data fetch
         getUsers();
     </script>
 </body>
