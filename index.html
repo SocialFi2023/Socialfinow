@@ -83,14 +83,16 @@
             });
         }
 
-        function formatDisplayPrice(price) {
-            // Convert to a floating point number
-            const priceFloat = parseFloat(price);
+       function formatDisplayPrice(price) {
+    // Convert to a floating point number
+    const priceFloat = parseFloat(price);
 
-            // Format with 3 decimal places, add "ETH" prefix, and parentheses
-            const formattedPrice = `(ETH ${priceFloat.toFixed(3)})`;
+    // Format with 3 decimal places, add "ETH" prefix, and parentheses
+    const formattedPrice = `(ETH ${(priceFloat / 1e18).toFixed(3)})`;
 
-            return formattedPrice;
+    return formattedPrice;
+}
+
         }
 
         function formatChange24H(change) {
