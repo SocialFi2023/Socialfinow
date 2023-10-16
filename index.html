@@ -16,6 +16,12 @@
             background-color: #f2f2f2;
             cursor: pointer;
         }
+        .asc::after {
+            content: ' ↑';
+        }
+        .desc::after {
+            content: ' ↓';
+        }
     </style>
 </head>
 <body>
@@ -23,14 +29,14 @@
     <table id="userTable">
         <thead>
             <tr>
-                <th onclick="sortTable(0)">ID</th>
-                <th onclick="sortTable(1)">Address</th>
-                <th onclick="sortTable(2)">Twitter Username</th>
-                <th onclick="sortTable(3)">Twitter Name</th>
-                <th onclick="sortTable(4)">Display Price</th>
-                <th onclick="sortTable(5)">Change (24H)</th>
-                <th onclick="sortTable(6)">Holder Count</th>
-                <th onclick="sortTable(7)">Share Supply</th>
+                <th class="sortable" onclick="sortTable(0)">ID</th>
+                <th class="sortable" onclick="sortTable(1)">Address</th>
+                <th class="sortable" onclick="sortTable(2)">Twitter Username</th>
+                <th class="sortable" onclick="sortTable(3)">Twitter Name</th>
+                <th class="sortable" onclick="sortTable(4)">Display Price</th>
+                <th class="sortable" onclick="sortTable(5)">Change (24H)</th>
+                <th class="sortable" onclick="sortTable(6)">Holder Count</th>
+                <th class="sortable" onclick="sortTable(7)">Share Supply</th>
             </tr>
         </thead>
         <tbody id="userTableBody">
@@ -40,6 +46,7 @@
 
     <script>
         const apiUrl = 'https://prod-api.kosetto.com/lists/top-by-price';
+        let sortDirection = 1; // 1 for ascending, -1 for descending
 
         async function getUsers() {
             try {
@@ -67,7 +74,7 @@
                     <td>${user.address}</td>
                     <td>${user.twitterUsername}</td>
                     <td>${user.twitterName}</td>
-                    <td>${user.displayPrice}</td>
+                    <td>${formatDisplayPrice(user.displayPrice)}</td>
                     <td>${user.change24H}</td>
                     <td>${user.holderCount}</td>
                     <td>${user.shareSupply}</td>
@@ -76,28 +83,51 @@
             });
         }
 
+        function formatDisplayPrice(price) {
+            // Convert to a floating point number
+            const priceFloat = parseFloat(price);
+            
+            // Format with 3 decimal places and add "ETH" prefix
+            const formattedPrice = `ETH ${priceFloat.toFixed(3)}`;
+
+            return formattedPrice;
+        }
+
         function sortTable(columnIndex) {
             const table = document.getElementById('userTable');
-            const rows = table.rows;
-            let switching = true;
+            const rows = Array.from(table.rows);
+            const header = rows[0];
+            const isNumericColumn = [0, 4, 5, 6, 7].includes(columnIndex); // Numeric columns
 
-            while (switching) {
-                switching = false;
-                for (let i = 1; i < rows.length - 1; i++) {
-                    let shouldSwitch = false;
-                    const x = rows[i].getElementsByTagName('td')[columnIndex];
-                    const y = rows[i + 1].getElementsByTagName('td')[columnIndex];
-                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                }
+            // Toggle sort direction
+            sortDirection = -sortDirection;
 
-                if (shouldSwitch) {
-                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                    switching = true;
+            rows.shift(); // Remove the header row for sorting
+
+            rows.sort((a, b) => {
+                const x = a.cells[columnIndex].textContent.trim();
+                const y = b.cells[columnIndex].textContent.trim();
+
+                if (isNumericColumn) {
+                    // Sort numerically for numeric columns
+                    return sortDirection * (parseFloat(x) - parseFloat(y));
+                } else {
+                    // Sort lexicographically for non-numeric columns
+                    return sortDirection * x.localeCompare(y);
                 }
-            }
+            });
+
+            table.innerHTML = ''; // Clear the table
+
+            // Add the header row back
+            table.appendChild(header);
+
+            // Add sorted rows to the table
+            rows.forEach(row => table.appendChild(row));
+
+            // Add arrow indicators to sorted column header
+            header.querySelectorAll('th').forEach(th => th.classList.remove('asc', 'desc'));
+            header.cells[columnIndex].classList.add(sortDirection === 1 ? 'asc' : 'desc');
         }
 
         getUsers();
