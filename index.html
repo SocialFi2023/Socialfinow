@@ -27,6 +27,8 @@
             position: relative;
             display: inline-block;
             cursor: pointer;
+            text-decoration: underline;
+            color: blue;
         }
         .tooltip-text {
             visibility: hidden;
@@ -56,7 +58,7 @@
         <thead>
             <tr>
                 <th class="sortable" onclick="sortTable(0)">ID</th>
-                <th class="sortable" onclick="sortTable(1)">Address</th>
+                <th class="sortable" onclick="sortTable(1)">Contract Address</th>
                 <th class="sortable" onclick="sortTable(2)">Twitter Username</th>
                 <th class="sortable" onclick="sortTable(3)">Twitter Name</th>
                 <th class="sortable" onclick="sortTable(4)">Display Price</th>
@@ -75,75 +77,69 @@
         let sortDirection = 1; // 1 for ascending, -1 for descending
 
         async function getUsers() {
-            try {
-                const response = await fetch(apiUrl);
-                const userData = await response.json();
-
-                if (response.ok) {
-                    displayUsers(userData.users);
-                } else {
-                    console.error('Error fetching user data');
-                }
-            } catch (error) {
-                console.error(error);
-            }
+            // Fetch user data from the API and populate the table
+            // ...
         }
 
-        function displayUsers(users) {
-            const tableBody = document.getElementById('userTableBody');
-            tableBody.innerHTML = '';
-
-            users.forEach(user => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${user.id}</td>
-                    <td class="tooltip">${user.address}
-                        <div class="tooltip-text">
-                            Address: ${user.address}<br>
-                            Twitter Username: ${user.twitterUsername}<br>
-                            Twitter Name: ${user.twitterName}<br>
-                            Display Price: ${formatDisplayPrice(user.displayPrice)}<br>
-                            Change (24H): ${formatChange24H(user.change24H)}<br>
-                            Holder Count: ${user.holderCount}<br>
-                            Share Supply: ${user.shareSupply}
-                        </div>
-                    </td>
-                    <td>${user.twitterUsername}</td>
-                    <td>${user.twitterName}</td>
-                    <td>${formatDisplayPrice(user.displayPrice)}</td>
-                    <td>${formatChange24H(user.change24H)}</td>
-                    <td>${user.holderCount}</td>
-                    <td>${user.shareSupply}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
+        // Formatting function for Display Price
         function formatDisplayPrice(price) {
             const priceFloat = parseFloat(price);
             const formattedPrice = `(ETH ${(priceFloat / 1e18).toFixed(3)})`;
             return formattedPrice;
         }
 
+        // Formatting function for Change (24H)
         function formatChange24H(change) {
             const changeFloat = parseFloat(change);
             const formattedChange = `${changeFloat.toFixed(3)}%`;
             return formattedChange;
         }
 
+        // Function to sort the table
         function sortTable(columnIndex) {
             // Sorting code here...
         }
 
+        // Function to refresh data
         function refreshData() {
             getUsers();
+        }
+
+        // Function to fetch and display the contract data in a tooltip-like pop-up
+        async function displayContractData(addressCell) {
+            // Extract the contract address from the cell
+            const contractAddress = addressCell.textContent;
+
+            // Fetch data from the portfolio API for the contract address
+            const portfolioApiUrl = `https://prod-api.kosetto.com/portfolio/${contractAddress}`;
+            try {
+                const response = await fetch(portfolioApiUrl);
+                const contractData = await response.json();
+
+                if (response.ok) {
+                    // Create a tooltip-like pop-up with the contract data
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip';
+                    tooltip.innerHTML = contractAddress;
+
+                    const tooltipText = document.createElement('div');
+                    tooltipText.className = 'tooltip-text';
+                    tooltipText.innerHTML = JSON.stringify(contractData, null, 2);
+
+                    tooltip.appendChild(tooltipText);
+                    addressCell.innerHTML = '';
+                    addressCell.appendChild(tooltip);
+                }
+            } catch (error) {
+                console.error(error);
+            }
         }
 
         // Add event listener to the refresh button
         document.getElementById('refreshButton').addEventListener('click', refreshData);
 
         // Attach the hover event to the contract address cells
-        const addressCells = document.querySelectorAll('.tooltip');
+        const addressCells = document.querySelectorAll('td:nth-child(2)');
         addressCells.forEach(cell => {
             cell.addEventListener('mouseover', () => displayContractData(cell));
         });
