@@ -17,7 +17,10 @@
     <table>
         <thead>
             <tr>
-                <!-- Table headers will be dynamically added here -->
+                <th>ID</th>
+                <th>Creator</th>
+                <th>Value</th>
+                <th>Is NSFW</th>
             </tr>
         </thead>
         <tbody id="eventTable">
@@ -28,56 +31,47 @@
     <h2>Raw Event Data</h2>
     <div class="raw-data-box" id="rawData"></div>
 
-    <h2>Error Message</h2>
-    <p id="errorMessage"></p>
-
     <script>
         const apiUrl = 'https://prod-api.kosetto.com/events';
 
         // Function to get and display events
         async function getEvents() {
             try {
-                const response = await axios.get(apiUrl);
-                const rawData = JSON.stringify(response.data, null, 2); // Format JSON
+                const response = await fetch(apiUrl);
+                const rawData = await response.text(); // Get the raw JSON data
 
                 const tableData = document.getElementById('eventTable');
                 const rawDataElement = document.getElementById('rawData');
-                const errorMessageElement = document.getElementById('errorMessage');
-                const events = response.data; // Assuming the API response is an array of events
 
-                if (events.length > 0) {
-                    // Use the first event to create table headers
-                    const headers = Object.keys(events[0]);
-                    const headerRow = document.querySelector('thead tr');
+                if (response.ok) {
+                    const eventsData = JSON.parse(rawData).events;
 
-                    headers.forEach(header => {
-                        const th = document.createElement('th');
-                        th.textContent = header;
-                        headerRow.appendChild(th);
-                    });
-
-                    events.forEach(event => {
-                        const row = document.createElement('tr');
-                        headers.forEach(header => {
-                            const td = document.createElement('td');
-                            td.textContent = event[header];
-                            row.appendChild(td);
+                    if (eventsData.length > 0) {
+                        eventsData.forEach(event => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${event.id}</td>
+                                <td>${event.creator}</td>
+                                <td>${event.value}</td>
+                                <td>${event.isNSFW}</td>
+                            `;
+                            tableData.appendChild(row);
                         });
-                        tableData.appendChild(row);
-                    });
-
-                    rawDataElement.textContent = rawData;
+                    } else {
+                        tableData.innerHTML = '<tr><td colspan="4">No event data available</td></tr>';
+                    }
                 } else {
-                    tableData.innerHTML = '<tr><td colspan="2">No event data available</td></tr>';
-                    errorMessageElement.textContent = 'No data available for events.';
+                    // Display an error message if the API request fails
+                    tableData.innerHTML = '<tr><td colspan="4">Error fetching event data</td></tr>';
                 }
+
+                rawDataElement.textContent = rawData;
             } catch (error) {
                 console.error(error);
-                errorMessageElement.textContent = 'An error occurred while fetching data.';
             }
         }
 
-        // Call the getEvents function to populate the table with events, raw data, and error message
+        // Call the getEvents function to populate the table with events and raw data
         getEvents();
     </script>
 </body>
