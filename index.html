@@ -72,6 +72,7 @@
 
     <script>
         const apiUrl = 'https://prod-api.kosetto.com/lists/top-by-price';
+        let sortColumn = -1; // Initial sorting column (none)
         let sortDirection = 1; // 1 for ascending, -1 for descending
 
         async function getUsers() {
@@ -132,45 +133,58 @@
         }
 
         function sortTable(columnIndex) {
-            // Sorting code here...
+            if (sortColumn === columnIndex) {
+                sortDirection = -sortDirection; // Reverse sorting direction on the same column
+            } else {
+                sortColumn = columnIndex;
+                sortDirection = 1; // Default to ascending on a new column
+            }
+
+            const table = document.getElementById('userTable');
+            const rows = Array.from(table.getElementsByTagName('tr'));
+            rows.shift(); // Remove the header row from the sorting
+
+            rows.sort((a, b) => {
+                const aValue = a.getElementsByTagName('td')[columnIndex].textContent;
+                const bValue = b.getElementsByTagName('td')[columnIndex].textContent;
+                if (columnIndex === 0 || columnIndex === 6 || columnIndex === 7) {
+                    return sortDirection * (parseInt(aValue) - parseInt(bValue));
+                } else if (columnIndex === 4 || columnIndex === 5) {
+                    return sortDirection * (parseFloat(aValue) - parseFloat(bValue));
+                }
+                return sortDirection * aValue.localeCompare(bValue);
+            });
+
+            // Re-append sorted rows to the table
+            rows.forEach(row => table.appendChild(row));
         }
 
         function refreshData() {
             getUsers();
         }
-async function displayContractData(address) {
-    const holdingsActivityApiUrl = `https://prod-api.kosetto.com/holdings-activity/${address}`;
-    try {
-        const response = await fetch(holdingsActivityApiUrl);
-        if (response.ok) {
-            const data = await response.json();
-            const tooltipText = document.querySelector(`[onmouseover*="${address}"] .tooltip-text`);
-            tooltipText.innerHTML = JSON.stringify(normalizeData(data), null, 2); // Display the normalized data
-            setTimeout(() => {
-                tooltipText.innerHTML = JSON.stringify(data, null, 2); // Display the raw data
-            }, 1000); // Delay for 1 second
-        } else {
-            console.error('Error fetching contract data');
-        }
-    } catch (error) {
-        console.error(error);
-}
 
-function normalizeData(data) {
-    // Normalize the data here
-    return data; // You can implement your data normalization logic
-}
-
-}
-
-        function formatDataAsKeyValuePairs(data) {
-            let formattedData = '';
-            for (const key in data) {
-                if (data.hasOwnProperty(key)) {
-                    formattedData += `<strong>${key}:</strong> ${data[key]}<br>`;
+        async function displayContractData(address) {
+            const holdingsActivityApiUrl = `https://prod-api.kosetto.com/holdings-activity/${address}`;
+            try {
+                const response = await fetch(holdingsActivityApiUrl);
+                if (response.ok) {
+                    const data = await response.json();
+                    const tooltipText = document.querySelector(`[onmouseover*="${address}"] .tooltip-text`);
+                    tooltipText.innerHTML = formatDataAsKeyValuePairs(data);
+                } catch (error) {
+                    console.error('Error fetching contract data');
                 }
             }
-            return formattedData;
+
+            function formatDataAsKeyValuePairs(data) {
+                let formattedData = '';
+                for (const key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        formattedData += `<strong>${key}:</strong> ${data[key]}<br>`;
+                    }
+                }
+                return formattedData;
+            }
         }
 
         // Add event listener to the refresh button
