@@ -145,13 +145,23 @@ async function displayContractData(address) {
         if (response.ok) {
             const data = await response.json();
             const tooltipText = document.querySelector(`[onmouseover*="${address}"] .tooltip-text`);
-            tooltipText.innerHTML = JSON.stringify(data, null, 2); // Convert the object to a string with formatting
+            tooltipText.innerHTML = JSON.stringify(normalizeData(data), null, 2); // Display the normalized data
+            setTimeout(() => {
+                tooltipText.innerHTML = JSON.stringify(data, null, 2); // Display the raw data
+            }, 1000); // Delay for 1 second
         } else {
             console.error('Error fetching contract data');
         }
     } catch (error) {
         console.error(error);
     }
+}
+
+function normalizeData(data) {
+    // Normalize the data here
+    return data; // You can implement your data normalization logic
+}
+
 }
 
         function formatDataAsKeyValuePairs(data) {
