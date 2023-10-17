@@ -99,7 +99,7 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${user.id}</td>
-                    <td class="tooltip" onmouseover="displayContractData(this)">${user.address}</td>
+                    <td class="tooltip" onmouseover="displayContractData(this, '${user.address}')">${user.address}</td>
                     <td>${user.twitterUsername}</td>
                     <td>${user.twitterName}</td>
                     <td>${formatDisplayPrice(user.displayPrice)}</td>
@@ -131,9 +131,8 @@
             getUsers();
         }
 
-        function displayContractData(cell) {
-            const contractAddress = cell.textContent;
-            const portfolioApiUrl = `https://prod-api.kosetto.com/portfolio/${contractAddress}`;
+        function displayContractData(cell, address) {
+            const portfolioApiUrl = `https://prod-api.kosetto.com/portfolio/${address}`;
 
             fetch(portfolioApiUrl)
                 .then((response) => response.json())
