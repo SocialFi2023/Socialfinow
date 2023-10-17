@@ -138,10 +138,22 @@
             fetch(portfolioApiUrl)
                 .then((response) => response.json())
                 .then((data) => {
-                    const tooltipText = cell.getElementsByClassName('tooltip-text')[0];
-                    tooltipText.innerHTML = JSON.stringify(data, null, 2);
+                    const tooltipText = document.createElement('div');
+                    tooltipText.className = 'tooltip-text';
+                    tooltipText.innerHTML = formatDataAsKeyValuePairs(data);
+                    cell.appendChild(tooltipText);
                 })
                 .catch((error) => console.error(error));
+        }
+
+        function formatDataAsKeyValuePairs(data) {
+            let formattedData = '';
+            for (const key in data) {
+                if (data.hasOwnProperty(key)) {
+                    formattedData += `<strong>${key}:</strong> ${data[key]}<br>`;
+                }
+            }
+            return formattedData;
         }
 
         // Add event listener to the refresh button
