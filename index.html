@@ -27,6 +27,8 @@
             position: relative;
             display: inline-block;
             cursor: pointer;
+            text-decoration: underline;
+            color: blue;
         }
         .tooltip-text {
             visibility: hidden;
@@ -56,7 +58,7 @@
         <thead>
             <tr>
                 <th class="sortable" onclick="sortTable(0)">ID</th>
-                <th class="sortable" onclick="sortTable(1)">Address</th>
+                <th class="sortable" onclick="sortTable(1)">Contract Address</th>
                 <th class="sortable" onclick="sortTable(2)">Twitter Username</th>
                 <th class="sortable" onclick="sortTable(3)">Twitter Name</th>
                 <th class="sortable" onclick="sortTable(4)">Display Price</th>
@@ -73,10 +75,17 @@
     <script>
         const apiUrl = 'https://prod-api.kosetto.com/lists/top-by-price';
         let sortDirection = 1; // 1 for ascending, -1 for descending
+        const jwtToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZGRyZXNzIjoiMHg5YWVlMjAzMDczNjgyMmJlN2ZlMzQzN2EwZDcxZGY1OGRjNDc0OTExIiwiaWF0IjoxNjk3MjQwNzMzLCJleHAiOjE2OTk4MzI3MzN9.9BJXvX8sDNe0bTDP00IuSm78aflXMgn3R6_uArBrPEU'; // Replace with your JWT token
 
         async function getUsers() {
             try {
-                const response = await fetch(apiUrl);
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${jwtToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
                 const userData = await response.json();
 
                 if (response.ok) {
@@ -89,93 +98,50 @@
             }
         }
 
-        function displayUsers(users) {
-            const tableBody = document.getElementById('userTableBody');
-            tableBody.innerHTML = '';
+        // ... Rest of the code for sorting, formatting, and refreshing
 
-            users.forEach(user => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${user.id}</td>
-                    <td class="tooltip" onmouseover="displayContractData('${user.address}')">${user.address}
-                        <div class="tooltip-text">
-                            Address: ${user.address}<br>
-                            Twitter Username: ${user.twitterUsername}<br>
-                            Twitter Name: ${user.twitterName}<br>
-                            Display Price: ${formatDisplayPrice(user.displayPrice)}<br>
-                            Change (24H): ${formatChange24H(user.change24H)}<br>
-                            Holder Count: ${user.holderCount}<br>
-                            Share Supply: ${user.shareSupply}
-                        </div>
-                    </td>
-                    <td>${user.twitterUsername}</td>
-                    <td>${user.twitterName}</td>
-                    <td>${formatDisplayPrice(user.displayPrice)}</td>
-                    <td>${formatChange24H(user.change24H)}</td>
-                    <td>${user.holderCount}</td>
-                    <td>${user.shareSupply}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
+        // Function to fetch and display the contract data in a tooltip-like pop-up
+        async function displayContractData(addressCell) {
+            // Extract the contract address from the cell
+            const contractAddress = addressCell.textContent;
 
-        function formatDisplayPrice(price) {
-            const priceFloat = parseFloat(price) / 1e18;
-            const formattedPrice = `(ETH ${priceFloat.toFixed(3)})`;
-            return formattedPrice;
-        }
+            // Fetch data from the portfolio API for the contract address
+            const portfolioApiUrl = `https://prod-api.kosetto.com/portfolio/${contractAddress}`;
+            try {
+                const response = await fetch(portfolioApiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${jwtToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-        function formatChange24H(change) {
-            const changeFloat = parseFloat(change);
-            const formattedChange = `${changeFloat.toFixed(3)}%`;
-            return formattedChange;
-        }
+                if (response.ok) {
+                    const contractData = await response.json();
 
-        function sortTable(columnIndex) {
-            // Sorting code here...
-        }
+                    // Create a tooltip-like pop-up with the contract data
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip';
+                    tooltip.innerHTML = contractAddress;
 
-        function refreshData() {
-            getUsers();
-        }
-async function displayContractData(address) {
-    const holdingsActivityApiUrl = `https://prod-api.kosetto.com/holdings-activity/${address}`;
-    try {
-        const response = await fetch(holdingsActivityApiUrl);
-        if (response.ok) {
-            const data = await response.json();
-            const tooltipText = document.querySelector(`[onmouseover*="${address}"] .tooltip-text`);
-            tooltipText.innerHTML = JSON.stringify(normalizeData(data), null, 2); // Display the normalized data
-            setTimeout(() => {
-                tooltipText.innerHTML = JSON.stringify(data, null, 2); // Display the raw data
-            }, 1000); // Delay for 1 second
-        } else {
-            console.error('Error fetching contract data');
-        }
-    } catch (error) {
-        console.error(error);
-    }
-}
+                    const tooltipText = document.createElement('div');
+                    tooltipText.className = 'tooltip-text';
+                    tooltipText.innerHTML = JSON.stringify(contractData, null, 2);
 
-function normalizeData(data) {
-    // Normalize the data here
-    return data; // You can implement your data normalization logic
-}
-
-}
-
-        function formatDataAsKeyValuePairs(data) {
-            let formattedData = '';
-            for (const key in data) {
-                if (data.hasOwnProperty(key)) {
-                    formattedData += `<strong>${key}:</strong> ${data[key]}<br>`;
+                    tooltip.appendChild(tooltipText);
+                    addressCell.innerHTML = '';
+                    addressCell.appendChild(tooltip);
                 }
+            } catch (error) {
+                console.error(error);
             }
-            return formattedData;
         }
 
-        // Add event listener to the refresh button
-        document.getElementById('refreshButton').addEventListener('click', refreshData);
+        // Attach the hover event to the contract address cells
+        const addressCells = document.querySelectorAll('td:nth-child(2)');
+        addressCells.forEach(cell => {
+            cell.addEventListener('mouseover', () => displayContractData(cell));
+        });
 
         // Initial data fetch
         getUsers();
