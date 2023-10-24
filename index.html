@@ -27,6 +27,8 @@
             position: relative;
             display: inline-block;
             cursor: pointer;
+            text-decoration: underline;
+            color: blue;
         }
         .tooltip-text {
             visibility: hidden;
@@ -51,11 +53,12 @@
 </head>
 <body>
     <h1>User List</h1>
+    <button id="refreshButton">Refresh Data</button>
     <table id="userTable">
         <thead>
             <tr>
                 <th class="sortable" onclick="sortTable(0)">ID</th>
-                <th class="sortable" onclick="sortTable(1)">Address</th>
+                <th class="sortable" onclick="sortTable(1)">Contract Address</th>
                 <th class="sortable" onclick="sortTable(2)">Twitter Username</th>
                 <th class="sortable" onclick="sortTable(3)">Twitter Name</th>
                 <th class="sortable" onclick="sortTable(4)">Display Price</th>
@@ -70,7 +73,8 @@
     </table>
 
     <script>
-        const apiUrl = 'https://prod-api.kosetto.com/lists/top-by-price';
+        const topListApiUrl = 'https://prod-api.kosetto.com/lists/top-by-price';
+        const portfolioApiUrl = 'https://prod-api.kosetto.com/portfolio';
         const jwtToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZGRyZXNzIjoiMHg5YWVlMjAzMDczNjgyMmJlN2ZlMzQzN2EwZDcxZGY1OGRjNDc0OTExIiwiaWF0IjoxNjk3NjEyOTM1LCJleHAiOjE3MDAyMDQ5MzV9.Wfsf4u7hWxhECnwtAP9wjqj053G-g9Dcn-WN52AcQVI
 '; 
     // Replace with your JWT token
@@ -78,7 +82,7 @@
 
         async function getUsers() {
             try {
-                const response = await fetch(apiUrl);
+                const response = await fetch(topListApiUrl);
                 const userData = await response.json();
 
                 if (response.ok) {
@@ -129,7 +133,7 @@
             const contractAddress = cell.textContent;
             const tooltipText = cell.querySelector('.tooltip-text');
 
-            const portfolioApiUrl = `https://prod-api.kosetto.com/portfolio/${contractAddress}`;
+            const portfolioApiUrl = `${portfolioApiUrl}/${contractAddress}`;
             try {
                 const response = await fetch(portfolioApiUrl, {
                     headers: {
@@ -142,17 +146,20 @@
                     tooltipText.innerHTML = JSON.stringify(contractData, null, 2);
                 } else {
                     tooltipText.innerHTML = 'Error fetching contract data';
-                    console.error('Error fetching contract data');
                 }
             } catch (error) {
-                tooltipText.innerHTML = 'Error fetching contract data';
                 console.error(error);
             }
         }
 
-        function sortTable(columnIndex) {
-            // Sorting code here...
-        }
+        // Attach the hover event to the contract address cells
+        const addressCells = document.querySelectorAll('td:nth-child(2)');
+        addressCells.forEach(cell => {
+            cell.addEventListener('mouseover', () => displayContractData(cell));
+        });
+
+        // Add event listener to the refresh button
+        document.getElementById('refreshButton').addEventListener('click', getUsers);
 
         // Initial data fetch
         getUsers();
