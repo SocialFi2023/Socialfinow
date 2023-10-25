@@ -29,7 +29,6 @@
             cursor: pointer;
         }
         .tooltip-text {
-            visibility: hidden;
             width: 300px;
             background-color: #f9f9f9;
             color: #333;
@@ -42,10 +41,12 @@
             left: 0;
             opacity: 0;
             transition: opacity 0.3s;
+            display: none;
         }
         .tooltip:hover .tooltip-text {
             visibility: visible;
             opacity: 1;
+            display: block;
         }
     </style>
 </head>
@@ -132,7 +133,7 @@
             const contractAddress = cell.textContent;
             const tooltipText = cell.querySelector('.tooltip-text');
 
-            const portfolioApiUrl = `https://prod-api.kosetto.com/Users/${contractAddress}`;
+            const portfolioApiUrl = `https://prod-api.kosetto.com/portfolio/${contractAddress}`;
             try {
                 const response = await fetch(portfolioApiUrl, {
                     headers: {
@@ -142,7 +143,8 @@
 
                 if (response.ok) {
                     const contractData = await response.json();
-                    tooltipText.innerHTML = JSON.stringify(contractData, null, 2);
+                    const formattedData = formatDataAsKeyValuePairs(contractData);
+                    tooltipText.innerHTML = formattedData;
                 } else {
                     tooltipText.innerHTML = 'Error fetching contract data';
                     console.error('Error fetching contract data');
@@ -151,6 +153,16 @@
                 tooltipText.innerHTML = 'Error fetching contract data';
                 console.error(error);
             }
+        }
+
+        function formatDataAsKeyValuePairs(data) {
+            let formattedData = '';
+            for (const key in data) {
+                if (data.hasOwnProperty(key)) {
+                    formattedData += `<strong>${key}:</strong> ${data[key]}<br>`;
+                }
+            }
+            return formattedData;
         }
 
         function sortTable(columnIndex) {
