@@ -133,7 +133,7 @@
             const contractAddress = cell.textContent;
             const tooltipText = cell.querySelector('.tooltip-text');
 
-            const portfolioApiUrl = `https://prod-api.kosetto.com/portfolio/${contractAddress}`;
+            const portfolioApiUrl = `https://prod-api.kosetto.com/Users/${contractAddress}`;
             try {
                 const response = await fetch(portfolioApiUrl, {
                     headers: {
