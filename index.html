@@ -29,13 +29,34 @@
     </table>
 
     <script>
-        // ... (existing JavaScript code) ...
+        const apiUrl = 'https://prod-api.kosetto.com/lists/top-by-price';
+        const jwtToken = 'YourJWTToken'; // Replace with your JWT token
+        let sortDirection = 1; // 1 for ascending, -1 for descending
+
+        async function getUsers() {
+            try {
+                const response = await fetch(apiUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${jwtToken}`
+                    }
+                });
+                const userData = await response.json();
+
+                if (response.ok) {
+                    displayUsers(userData.users);
+                } else {
+                    console.error('Error fetching user data');
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
 
         async function displayUsers(users) {
             const tableBody = document.getElementById('userTableBody');
             tableBody.innerHTML = '';
 
-            users.forEach(async (user) => {
+            for (const user of users) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${user.id}</td>
@@ -57,7 +78,7 @@
                 lastOnlineCell.textContent = lastOnlineData;
 
                 tableBody.appendChild(row);
-            });
+            }
         }
 
         async function fetchLastOnlineData(address) {
@@ -82,7 +103,17 @@
             }
         }
 
-        // ... (existing JavaScript code) ...
+        // ... (existing JavaScript code, including sorting function) ...
+
+        function refreshData() {
+            getUsers();
+        }
+
+        // Add event listener to the refresh button
+        document.getElementById('refreshButton').addEventListener('click', refreshData);
+
+        // Initial data fetch
+        getUsers();
     </script>
 </body>
 </html>
