@@ -21,6 +21,7 @@
                 <th class="sortable" onclick="sortTable(6)">Holder Count</th>
                 <th class="sortable" onclick="sortTable(7)">Share Supply</th>
                 <th class="sortable" onclick="sortTable(8)">Last Online</th> <!-- New Column -->
+                <th class="sortable" onclick="sortTable(9)">New Data</th> <!-- New Column -->
             </tr>
         </thead>
         <tbody id="userTableBody">
@@ -52,11 +53,11 @@
             }
         }
 
-        async function displayUsers(users) {
+        function displayUsers(users) {
             const tableBody = document.getElementById('userTableBody');
             tableBody.innerHTML = '';
 
-            for (const user of users) {
+            users.forEach(user => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${user.id}</td>
@@ -70,14 +71,60 @@
                     <td>${user.holderCount}</td>
                     <td>${user.shareSupply}</td>
                     <td class="lastOnline">Loading...</td> <!-- Placeholder for Last Online -->
+                    <td class="newData">Loading...</td> <!-- Placeholder for New Data -->
                 `;
+                tableBody.appendChild(row);
 
                 // Fetch and display Last Online data
                 const lastOnlineCell = row.querySelector('.lastOnline');
-                const lastOnlineData = await fetchLastOnlineData(user.address);
-                lastOnlineCell.textContent = lastOnlineData;
+                fetchLastOnlineData(user.address)
+                    .then(data => {
+                        lastOnlineCell.textContent = data;
+                    });
 
-                tableBody.appendChild(row);
+                // Fetch and display New Data
+                const newDataCell = row.querySelector('.newData');
+                fetchNewData(user.address)
+                    .then(data => {
+                        newDataCell.textContent = data;
+                    });
+            });
+        }
+
+        function formatDisplayPrice(price) {
+            const priceFloat = parseFloat(price) / 1e18;
+            const formattedPrice = `(ETH ${priceFloat.toFixed(3)})`;
+            return formattedPrice;
+        }
+
+        function formatChange24H(change) {
+            const changeFloat = parseFloat(change);
+            const formattedChange = `${changeFloat.toFixed(3)}%`;
+            return formattedChange;
+        }
+
+        async function displayContractData(cell) {
+            const contractAddress = cell.textContent;
+            const tooltipText = cell.querySelector('.tooltip-text');
+
+            const portfolioApiUrl = `https://prod-api.kosetto.com/Users/${contractAddress}`;
+            try {
+                const response = await fetch(portfolioApiUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${jwtToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const contractData = await response.json();
+                    tooltipText.innerHTML = JSON.stringify(contractData, null, 2);
+                } else {
+                    tooltipText.innerHTML = 'Error fetching contract data';
+                    console.error('Error fetching contract data');
+                }
+            } catch (error) {
+                tooltipText.innerHTML = 'Error fetching contract data';
+                console.error(error);
             }
         }
 
@@ -95,6 +142,30 @@
                     return data.lastOnline;
                 } else {
                     console.error('Error fetching Last Online data');
+                    return 'N/A';
+                }
+            } catch (error) {
+                console.error(error);
+                return 'N/A';
+            }
+        }
+
+        async function fetchNewData(address) {
+            const newDataApiUrl = `https://prod-api.kosetto.com/users/address/${address}`;
+            try {
+                const response = await fetch(newDataApiUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${jwtToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Adjust the code to fetch and display the desired data from the JSON response.
+                    // For this example, it's left as a placeholder.
+                    return 'New Data Placeholder';
+                } else {
+                    console.error('Error fetching New Data');
                     return 'N/A';
                 }
             } catch (error) {
