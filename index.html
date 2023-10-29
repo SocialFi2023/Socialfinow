@@ -53,11 +53,11 @@
             }
         }
 
-        function displayUsers(users) {
+        async function displayUsers(users) {
             const tableBody = document.getElementById('userTableBody');
             tableBody.innerHTML = '';
 
-            users.forEach(user => {
+            for (const user of users) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${user.id}</td>
@@ -77,18 +77,18 @@
 
                 // Fetch and display Last Online data
                 const lastOnlineCell = row.querySelector('.lastOnline');
-                fetchLastOnlineData(user.address)
+                await fetchLastOnlineData(user.address)
                     .then(data => {
                         lastOnlineCell.textContent = data;
                     });
 
                 // Fetch and display New Data
                 const newDataCell = row.querySelector('.newData');
-                fetchNewData(user.address)
+                await fetchNewData(user.address)
                     .then(data => {
                         newDataCell.textContent = data;
                     });
-            });
+            }
         }
 
         function formatDisplayPrice(price) {
